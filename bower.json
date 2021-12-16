@@ -1,0 +1,26 @@
+{
+  "name": "seagems",
+  "homepage": "https://github.com/devjoseruiz/seagems",
+  "description": "Casual game made with Phaser",
+  "main": "index.html",
+  "keywords": [
+    "game",
+    "phaser",
+    "javascript"
+  ],
+  "authors": [
+    "joseruizdev"
+  ],
+  "license": "GPL-3.0-or-later",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "phaser-ce": "^2.19.2"
+  }
+}
