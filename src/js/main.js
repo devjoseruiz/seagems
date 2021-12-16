@@ -56,6 +56,7 @@ GamePlayManager = {
             }
         }
 
+        // Animations for collected jewells
         this.explosionGroup = game.add.group()
 
         var explosionsAvailable = this.jewellsAmount * 30 / 100
@@ -75,6 +76,20 @@ GamePlayManager = {
 
             this.explosion.kill()
         }
+
+        // UI info
+        this.playerScore = 0
+
+        var fontStyle = {
+            font: "bold 30pt Arial",
+            fill: "#FFFFFF",
+            align: "center"
+        }
+
+        this.scoreText = game.add.text(screenXCenter, 40,
+            this.playerScore, fontStyle)
+        this.scoreText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+        this.scoreText.anchor.setTo(0.5, 0.5)
 
         // Player won't move until mouse clicks for first time
         game.input.onDown.add(this.onTap, this)
@@ -109,8 +124,10 @@ GamePlayManager = {
                     this.isRectangleOverlapping(rectPlayer, rectJewell)){
                         this.jewells[i].visible = false
 
-                        var explosion = this.explosionGroup.getFirstDead()
+                        this.increaseScore()
 
+                        var explosion = this.explosionGroup.getFirstDead()
+                        
                         if(explosion != null){
                             explosion.reset(this.jewells[i].x,
                                 this.jewells[i].y)
@@ -165,6 +182,10 @@ GamePlayManager = {
         }
 
         return false
+    },
+    increaseScore: function(){
+        this.playerScore += 10
+        this.scoreText.text = this.playerScore
     }
 }
 
