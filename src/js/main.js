@@ -9,14 +9,18 @@ GamePlayManager = {
     preload: function(){
         // Load game assets
         game.load.image("background", "../../assets/images/background.png")
+        game.load.image("explosion", "../../assets/images/explosion.png")
+
         game.load.spritesheet("horse", "../../assets/images/horse.png", 84, 156, 2)
         game.load.spritesheet("jewells", "../../assets/images/diamonds.png", 81, 84, 4)
     },
     create: function(){
+        var screenXCenter = game.width / 2
+        var screenYCenter = game.height / 2
         // Render the player sprite to the game
         game.add.sprite(0, 0, "background")
         // Put the player in the center of the screen
-        this.player = game.add.sprite(game.width / 2, game.height / 2, "horse")
+        this.player = game.add.sprite(screenXCenter, screenYCenter, "horse")
         // Set the anchor, this is, the sprite center
         this.player.anchor.setTo(0.5, 0.5)
         this.player.frame = 0
@@ -52,6 +56,26 @@ GamePlayManager = {
             }
         }
 
+        this.explosionGroup = game.add.group()
+
+        var explosionsAvailable = this.jewellsAmount * 30 / 100
+
+        for(var i = 0; i < explosionsAvailable; i++){
+            this.explosion = this.explosionGroup.create(0, 0, "explosion")
+            this.explosion.anchor.setTo(0.5, 0.5)
+
+            this.explosion.tweenScale = game.add.tween(this.explosion.scale).to({
+                x: [0.4, 0.8, 0.4],
+                y: [0.4, 0.8, 0.4]
+            }, 600, Phaser.Easing.Exponential.Out, false, 0, 0, false)
+
+            this.explosion.tweenAlpha = game.add.tween(this.explosion).to({
+                alpha: [1, 0.6, 0]
+            }, 600, Phaser.Easing.Exponential.Out, false, 0, 0, false)
+
+            this.explosion.kill()
+        }
+
         // Player won't move until mouse clicks for first time
         game.input.onDown.add(this.onTap, this)
     },
@@ -76,6 +100,7 @@ GamePlayManager = {
             this.player.x += distX * this.velocity / 100
             this.player.y += distY * this.velocity / 100
 
+            // Detect collisions between the player and the jewells
             for(var i = 0; i < this.jewellsAmount; i++){
                 var rectPlayer = this.getBoundsPlayer()
                 var rectJewell = this.getBoundsSprite(this.jewells[i])
@@ -83,6 +108,20 @@ GamePlayManager = {
                 if(this.jewells[i].visible &&
                     this.isRectangleOverlapping(rectPlayer, rectJewell)){
                         this.jewells[i].visible = false
+
+                        var explosion = this.explosionGroup.getFirstDead()
+
+                        if(explosion != null){
+                            explosion.reset(this.jewells[i].x,
+                                this.jewells[i].y)
+
+                            explosion.tweenScale.start()
+                            explosion.tweenAlpha.start()
+                            explosion.tweenAlpha.onComplete.add(
+                                function(currentTarget, currentTween){
+                                    currentTarget.kill()
+                            }, this)
+                        }
                 }
             }
         }
