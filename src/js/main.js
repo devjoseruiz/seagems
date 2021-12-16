@@ -7,11 +7,18 @@ GamePlayManager = {
         this.flagFirstMouseDown = false
         this.endGame = false
         this.jewellsCollected = 0
+        this.bubblesAmount = 30
+        this.horseBlinks = false
     },
     preload: function(){
         // Load game assets
         game.load.image("background", "../../assets/images/background.png")
         game.load.image("explosion", "../../assets/images/explosion.png")
+        game.load.image("shark", "../../assets/images/shark.png")
+        game.load.image("fishes", "../../assets/images/fishes.png")
+        game.load.image("mollusk", "../../assets/images/mollusk.png")
+        game.load.image("bubble1", "../../assets/images/booble1.png")
+        game.load.image("bubble2", "../../assets/images/booble2.png")
 
         game.load.spritesheet("horse", "../../assets/images/horse.png", 84, 156, 2)
         game.load.spritesheet("jewells", "../../assets/images/diamonds.png", 81, 84, 4)
@@ -19,8 +26,26 @@ GamePlayManager = {
     create: function(){
         this.screenXCenter = game.width / 2
         this.screenYCenter = game.height / 2
-        // Render the player sprite to the game
+        // Render the sprites to the game
         game.add.sprite(0, 0, "background")
+
+        this.bubbles = []
+        for(var i = 0; i < this.bubblesAmount; i++){
+            var bubbleX = game.rnd.integerInRange(1, 1140)
+            var bubbleY = game.rnd.integerInRange(600, 950)
+
+            var bubble = game.add.sprite(bubbleX, bubbleY, "bubble" + 
+                game.rnd.integerInRange(1, 2))
+            bubble.vel = 0.2 + game.rnd.frac() * 2
+            bubble.alpha = 0.9
+            bubble.scale.setTo(0.2 + game.rnd.frac())
+            this.bubbles[i] = bubble
+            
+        }
+
+        this.mollusk = game.add.sprite(500, 150, "mollusk")
+        this.shark = game.add.sprite(500, 20, "shark")
+        this.fishes = game.add.sprite(100, 550, "fishes")
         // Put the player in the center of the screen
         this.player = game.add.sprite(this.screenXCenter, this.screenYCenter, "horse")
         // Set the anchor, this is, the sprite center
@@ -116,6 +141,27 @@ GamePlayManager = {
     },
     update: function(){
         if (this.flagFirstMouseDown && !this.endGame){
+            for(var z = 0; z < this.bubblesAmount; z++){
+                var bubble = this.bubbles[z]
+                bubble.y -= bubble.vel
+
+                if(bubble.y < -50){
+                    bubble.y = 700
+                    bubble.x = game.rnd.integerInRange(1, 1140)
+                }
+            }
+
+            // Moves the shark from right to left
+            this.shark.x--
+            if(this.shark.x < -300){
+                this.shark.x = 1300
+            }
+
+            this.fishes.x += 0.3
+            if(this.shark.x > 1300){
+                this.shark.x = -300
+            }
+
             // Captures the mouse position
             var pointerX = game.input.x
             var pointerY = game.input.y
@@ -164,6 +210,11 @@ GamePlayManager = {
         }
     },
     onTap: function(){
+        if(!this.flagFirstMouseDown){
+            this.tweenMollusk = game.add.tween(this.mollusk.position).to(
+                {y: -0.001}, 5800, Phaser.Easing.Cubic.InOut, true, 0, 1000,
+                true).loop(true)
+        }
         this.flagFirstMouseDown = true
     },
     getBoundsSprite: function(currentSprite){
@@ -209,6 +260,14 @@ GamePlayManager = {
         this.jewellsCollected++
         this.timeCount++
 
+        if(this.horseBlinks){
+            this.horseBlinks = false
+            this.player.frame = 0
+        } else{
+            this.horseBlinks = true
+            this.player.frame = 1
+        }
+
         if(this.jewellsCollected >= this.jewellsAmount){
             this.time.events.remove(this.timerGameOver)
             this.showFinalMessage("YOU WIN")
@@ -216,6 +275,7 @@ GamePlayManager = {
         }
     },
     showFinalMessage: function(message){
+        this.tweenMollusk.stop()
         var bgAlpha = game.add.bitmapData(game.width, game.height)
         bgAlpha.ctx.fillStyle = "#000000"
         bgAlpha.ctx.fillRect(0, 0, game.width, game.height)
