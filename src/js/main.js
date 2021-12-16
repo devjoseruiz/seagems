@@ -5,6 +5,8 @@ GamePlayManager = {
         game.scale.pageAlignVertically = true
 
         this.flagFirstMouseDown = false
+        this.endGame = false
+        this.jewellsCollected = 0
     },
     preload: function(){
         // Load game assets
@@ -15,19 +17,19 @@ GamePlayManager = {
         game.load.spritesheet("jewells", "../../assets/images/diamonds.png", 81, 84, 4)
     },
     create: function(){
-        var screenXCenter = game.width / 2
-        var screenYCenter = game.height / 2
+        this.screenXCenter = game.width / 2
+        this.screenYCenter = game.height / 2
         // Render the player sprite to the game
         game.add.sprite(0, 0, "background")
         // Put the player in the center of the screen
-        this.player = game.add.sprite(screenXCenter, screenYCenter, "horse")
+        this.player = game.add.sprite(this.screenXCenter, this.screenYCenter, "horse")
         // Set the anchor, this is, the sprite center
         this.player.anchor.setTo(0.5, 0.5)
         this.player.frame = 0
         // Set the player velocity
         this.velocity = 2
 
-        this.jewellsAmount = 30
+        this.jewellsAmount = 25
         var jewellsPosXRange = [50, 1050]
         var jewellsPosYRange = [50, 600]
         this.jewells = []
@@ -79,6 +81,7 @@ GamePlayManager = {
 
         // UI info
         this.playerScore = 0
+        this.timeCount = 5
 
         var fontStyle = {
             font: "bold 30pt Arial",
@@ -86,16 +89,33 @@ GamePlayManager = {
             align: "center"
         }
 
-        this.scoreText = game.add.text(screenXCenter, 40,
-            this.playerScore, fontStyle)
+        this.scoreText = game.add.text(this.screenXCenter, 40,
+            this.playerScore + " pts", fontStyle)
         this.scoreText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
         this.scoreText.anchor.setTo(0.5, 0.5)
+
+        this.timerText = game.add.text(1000, 40, this.timeCount + "s", fontStyle)
+        this.timerText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+        this.timerText.anchor.setTo(0.5, 0.5)
+
+        this.timerGameOver = game.time.events.loop(Phaser.Timer.SECOND, function(){
+            if(this.flagFirstMouseDown){
+                this.timeCount--
+                this.timerText.text = this.timeCount + "s"
+
+                if(this.timeCount <= 0){
+                    this.time.events.remove(this.timerGameOver)
+                    this.showFinalMessage("GAME OVER")
+                    this.endGame = true
+                }
+            }
+        }, this)
 
         // Player won't move until mouse clicks for first time
         game.input.onDown.add(this.onTap, this)
     },
     update: function(){
-        if (this.flagFirstMouseDown){
+        if (this.flagFirstMouseDown && !this.endGame){
             // Captures the mouse position
             var pointerX = game.input.x
             var pointerY = game.input.y
@@ -185,7 +205,33 @@ GamePlayManager = {
     },
     increaseScore: function(){
         this.playerScore += 10
-        this.scoreText.text = this.playerScore
+        this.scoreText.text = this.playerScore + " pts"
+        this.jewellsCollected++
+        this.timeCount++
+
+        if(this.jewellsCollected >= this.jewellsAmount){
+            this.time.events.remove(this.timerGameOver)
+            this.showFinalMessage("YOU WIN")
+            this.endGame = true
+        }
+    },
+    showFinalMessage: function(message){
+        var bgAlpha = game.add.bitmapData(game.width, game.height)
+        bgAlpha.ctx.fillStyle = "#000000"
+        bgAlpha.ctx.fillRect(0, 0, game.width, game.height)
+
+        var bg = game.add.sprite(0, 0, bgAlpha)
+        bg.alpha = 0.5
+
+        var fontStyle = {
+            font: "bold 60pt Arial",
+            fill: "#FFFFFF",
+            align: "center"
+        }
+
+        this.textFieldFinalMessage = game.add.text(this.screenXCenter, this.screenYCenter,
+            message, fontStyle)
+        this.textFieldFinalMessage.anchor.setTo(0.5, 0.5)
     }
 }
 
