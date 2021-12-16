@@ -23,12 +23,12 @@ GamePlayManager = {
         // Set the player velocity
         this.velocity = 2
 
-        var jewellsAmount = 30
+        this.jewellsAmount = 30
         var jewellsPosXRange = [50, 1050]
         var jewellsPosYRange = [50, 600]
         this.jewells = []
 
-        for (var i = 0; i < jewellsAmount; i++){
+        for (var i = 0; i < this.jewellsAmount; i++){
             // Randomize the jewell position in the screen
             var posX = game.rnd.integerInRange(...jewellsPosXRange)
             var posY = game.rnd.integerInRange(...jewellsPosYRange)
@@ -75,6 +75,16 @@ GamePlayManager = {
             // Move the player
             this.player.x += distX * this.velocity / 100
             this.player.y += distY * this.velocity / 100
+
+            for(var i = 0; i < this.jewellsAmount; i++){
+                var rectPlayer = this.getBoundsPlayer()
+                var rectJewell = this.getBoundsSprite(this.jewells[i])
+
+                if(this.jewells[i].visible &&
+                    this.isRectangleOverlapping(rectPlayer, rectJewell)){
+                        this.jewells[i].visible = false
+                }
+            }
         }
     },
     onTap: function(){
@@ -83,6 +93,15 @@ GamePlayManager = {
     getBoundsSprite: function(currentSprite){
         return new Phaser.Rectangle(currentSprite.left, currentSprite.top,
             currentSprite.width, currentSprite.height)
+    },
+    // This is for avoiding errors because the player could be flipped
+    getBoundsPlayer: function(){
+        var axisX = this.player.x - Math.abs(this.player.width) / 4
+        var width = Math.abs(this.player.width) / 2
+        var axisY = this.player.y - this.player.height / 2
+        var height = this.player.height
+
+        return new Phaser.Rectangle(axisX, axisY, width, height)
     },
     // Check if two jewells are overlapping
     isRectangleOverlapping: function(rect1, rect2){
