@@ -236,6 +236,11 @@ GamePlayManager = {
                 {y: -0.001}, 5800, Phaser.Easing.Cubic.InOut, true, 0, 1000,
                 true).loop(true)
         }
+
+        if(this.endGame){
+            location.reload();
+        }
+
         this.tapToStartText.visible = false
         this.flagFirstMouseDown = true
     },
