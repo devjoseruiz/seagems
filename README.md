@@ -10,21 +10,40 @@ This is a casual browser-based game about collecting jewells under the sea. It's
 
 ### Requirements
 
+- NodeJS
+- Yarn
 - Bower
+- Express
 - Phaser CE
 
 ### Installation
 
-Go to project folder and install dependencies using Bower:
+Go to project folder and install the server side dependencies:
 
 ```bash
 cd project_folder
-bower install
+yarn install
+```
+
+Then install the client side dependencies:
+
+```bash
+yarn build
 ```
 
 ### How to run it
 
-Since this project is just a single HTML and JS file, in order to get running the game you must serve it from a web server.
+Start the web server:
+
+```bash
+yarn start
+```
+
+By default the server listens on port 8080. But you can change this by using environment variables. For example:
+
+```bash
+export PORT=3000
+```
 
 ## Authors
 

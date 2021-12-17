@@ -2,9 +2,9 @@
   "name": "seagems",
   "homepage": "https://github.com/devjoseruiz/seagems",
   "description": "Casual game made with Phaser",
-  "main": "index.html",
+  "main": "public/index.html",
   "keywords": [
-    "game",
+    "videogame",
     "phaser",
     "javascript"
   ],
