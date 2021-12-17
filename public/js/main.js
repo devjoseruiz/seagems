@@ -104,6 +104,7 @@ GamePlayManager = {
         }
 
         // UI info
+        this.maxPlayerScore = localStorage.getItem("maxPlayerScore") || 0
         this.playerScore = 0
         this.timeCount = 5
 
@@ -113,14 +114,19 @@ GamePlayManager = {
             align: "center"
         }
 
+        this.maxScoreText = game.add.text(60, 40,
+            "Record: " + this.maxPlayerScore + " pts", fontStyle)
+        this.maxScoreText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+        this.maxScoreText.anchor.setTo(0, 0.5)
+
         this.scoreText = game.add.text(this.screenXCenter, 40,
             "Score: " + this.playerScore + " pts", fontStyle)
         this.scoreText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
         this.scoreText.anchor.setTo(0.5, 0.5)
 
-        this.timerText = game.add.text(1000, 40, "Time: " + this.timeCount + "s", fontStyle)
+        this.timerText = game.add.text(1076, 40, "Time: " + this.timeCount + "s", fontStyle)
         this.timerText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
-        this.timerText.anchor.setTo(0.5, 0.5)
+        this.timerText.anchor.setTo(1, 0.5)
 
         this.timerGameOver = game.time.events.loop(Phaser.Timer.SECOND, function(){
             if(this.flagFirstMouseDown){
@@ -128,8 +134,19 @@ GamePlayManager = {
                 this.timerText.text = "Time: " + this.timeCount + "s"
 
                 if(this.timeCount <= 0){
+                    if(this.playerScore > this.maxPlayerScore){
+                        localStorage.setItem("maxPlayerScore", this.playerScore)
+                        this.maxScoreText.text = "Record: " + this.playerScore + " pts"
+                        this.showFinalMessage("NEW RECORD!\n" +
+                            this.playerScore + " pts\nCan you get even more?")
+                    } else if(this.playerScore < this.maxPlayerScore) {
+                        var neededToNewRecord = this.maxPlayerScore - this.playerScore
+                        this.showFinalMessage("TRY AGAIN!\n" + "Just " +
+                            neededToNewRecord + " pts more\nfor a new record!")
+                    } else{
+                        this.showFinalMessage("TRY AGAIN!")
+                    }
                     this.time.events.remove(this.timerGameOver)
-                    this.showFinalMessage("GAME OVER")
                     this.endGame = true
                 }
             }
@@ -293,13 +310,14 @@ GamePlayManager = {
         bg.alpha = 0.5
 
         var fontStyle = {
-            font: "bold 60pt Arial",
+            font: "bold 48pt Arial",
             fill: "#FFFFFF",
             align: "center"
         }
 
         this.textFieldFinalMessage = game.add.text(this.screenXCenter, this.screenYCenter,
             message, fontStyle)
+        this.textFieldFinalMessage.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
         this.textFieldFinalMessage.anchor.setTo(0.5, 0.5)
     }
 }
