@@ -114,6 +114,11 @@ GamePlayManager = {
             align: "center"
         }
 
+        this.tapToStartText = game.add.text(this.screenXCenter, this.screenYCenter,
+            "TAP TO START!", fontStyle)
+        this.tapToStartText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+        this.tapToStartText.anchor.setTo(0.5, 0.5)
+
         this.maxScoreText = game.add.text(60, 40,
             "Record: " + this.maxPlayerScore + " pts", fontStyle)
         this.maxScoreText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
@@ -231,6 +236,7 @@ GamePlayManager = {
                 {y: -0.001}, 5800, Phaser.Easing.Cubic.InOut, true, 0, 1000,
                 true).loop(true)
         }
+        this.tapToStartText.visible = false
         this.flagFirstMouseDown = true
     },
     getBoundsSprite: function(currentSprite){
@@ -285,6 +291,7 @@ GamePlayManager = {
             this.timerText.text = "Time: (+1) " + this.timeCount + "s"
         }
 
+        // Regenerates a random amount of jewells when player has collected all
         if(this.jewellsCollected >= this.jewellsAmount){
             var jewellsToAppear = game.rnd.integerInRange(1, this.jewellsAmount / 2)
             this.jewellsCollected -= jewellsToAppear
