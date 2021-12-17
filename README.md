@@ -33,6 +33,8 @@ yarn build
 
 ### How to run it
 
+> Tip: works better in Firefox browser. There seems to be a bug in the Chrome-based browsers, preventing text from being displayed on the canvas.
+
 Start the web server:
 
 ```bash

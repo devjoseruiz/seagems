@@ -22,10 +22,19 @@ GamePlayManager = {
 
         game.load.spritesheet("horse", "../assets/images/horse.png", 84, 156, 2)
         game.load.spritesheet("jewells", "../assets/images/diamonds.png", 81, 84, 4)
+
+        game.load.audio("bgMusic", "../assets/sounds/musicLoop.mp3")
+        game.load.audio("bubblePop", "../assets/sounds/sfxPop.mp3")
     },
     create: function(){
         this.screenXCenter = game.width / 2
         this.screenYCenter = game.height / 2
+
+        // Add background music to the game
+        this.music = game.add.audio("bgMusic")
+        this.music.loop = true
+        this.pop = game.add.audio("bubblePop")
+
         // Render the sprites to the game
         game.add.sprite(0, 0, "background")
 
@@ -210,6 +219,7 @@ GamePlayManager = {
                 if(this.jewells[i].visible &&
                     this.isRectangleOverlapping(rectPlayer, rectJewell)){
                         this.jewells[i].visible = false
+                        this.pop.play()
 
                         this.increaseScore()
 
@@ -235,14 +245,14 @@ GamePlayManager = {
             this.tweenMollusk = game.add.tween(this.mollusk.position).to(
                 {y: -0.001}, 5800, Phaser.Easing.Cubic.InOut, true, 0, 1000,
                 true).loop(true)
+            this.tapToStartText.visible = false
+            this.flagFirstMouseDown = true
+            this.music.play()
         }
 
         if(this.endGame){
             location.reload();
         }
-
-        this.tapToStartText.visible = false
-        this.flagFirstMouseDown = true
     },
     getBoundsSprite: function(currentSprite){
         return new Phaser.Rectangle(currentSprite.left, currentSprite.top,
@@ -331,6 +341,7 @@ GamePlayManager = {
             message, fontStyle)
         this.textFieldFinalMessage.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
         this.textFieldFinalMessage.anchor.setTo(0.5, 0.5)
+        this.music.stop()
     }
 }
 
