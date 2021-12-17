@@ -40,7 +40,6 @@ GamePlayManager = {
             bubble.alpha = 0.9
             bubble.scale.setTo(0.2 + game.rnd.frac())
             this.bubbles[i] = bubble
-            
         }
 
         this.mollusk = game.add.sprite(500, 150, "mollusk")
@@ -54,7 +53,7 @@ GamePlayManager = {
         // Set the player velocity
         this.velocity = 2
 
-        this.jewellsAmount = 25
+        this.jewellsAmount = 30
         var jewellsPosXRange = [50, 1050]
         var jewellsPosYRange = [50, 600]
         this.jewells = []
@@ -115,18 +114,18 @@ GamePlayManager = {
         }
 
         this.scoreText = game.add.text(this.screenXCenter, 40,
-            this.playerScore + " pts", fontStyle)
+            "Score: " + this.playerScore + " pts", fontStyle)
         this.scoreText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
         this.scoreText.anchor.setTo(0.5, 0.5)
 
-        this.timerText = game.add.text(1000, 40, this.timeCount + "s", fontStyle)
+        this.timerText = game.add.text(1000, 40, "Time: " + this.timeCount + "s", fontStyle)
         this.timerText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
         this.timerText.anchor.setTo(0.5, 0.5)
 
         this.timerGameOver = game.time.events.loop(Phaser.Timer.SECOND, function(){
             if(this.flagFirstMouseDown){
                 this.timeCount--
-                this.timerText.text = this.timeCount + "s"
+                this.timerText.text = "Time: " + this.timeCount + "s"
 
                 if(this.timeCount <= 0){
                     this.time.events.remove(this.timerGameOver)
@@ -256,9 +255,8 @@ GamePlayManager = {
     },
     increaseScore: function(){
         this.playerScore += 10
-        this.scoreText.text = this.playerScore + " pts"
+        this.scoreText.text = "Score: " + this.playerScore + " pts"
         this.jewellsCollected++
-        this.timeCount++
 
         if(this.horseBlinks){
             this.horseBlinks = false
@@ -266,12 +264,23 @@ GamePlayManager = {
         } else{
             this.horseBlinks = true
             this.player.frame = 1
+            this.timeCount++
+            this.timerText.text = "Time: (+1) " + this.timeCount + "s"
         }
 
         if(this.jewellsCollected >= this.jewellsAmount){
-            this.time.events.remove(this.timerGameOver)
-            this.showFinalMessage("YOU WIN")
-            this.endGame = true
+            var jewellsToAppear = game.rnd.integerInRange(1, this.jewellsAmount / 2)
+            this.jewellsCollected -= jewellsToAppear
+            for(var i = 0; i < jewellsToAppear; i++){
+                var tryAgain = true
+                while(tryAgain){
+                    var index = game.rnd.integerInRange(0, this.jewellsAmount - 1)
+                    if(this.jewells[index].visible == false){
+                        this.jewells[index].visible = true
+                        tryAgain = false
+                    }
+                }
+            }
         }
     },
     showFinalMessage: function(message){
